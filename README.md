@@ -1,2 +1,2 @@
-# kata-stringcalculator
-Skeleton project for the stringcalculator Java kata. See http://osherove.com/tdd-kata-1/
+# StringCalculator Kata
+Skeleton project for the string calculator Java kata. See http://osherove.com/tdd-kata-1/
