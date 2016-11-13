@@ -2,6 +2,9 @@ package de.kata;
 
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 /**
@@ -27,8 +30,8 @@ import static org.junit.Assert.fail;
  *         the following input is NOT ok:  “1,\n” (not need to prove it - just clarifying)
  *         <p>
  *         4.) Support different delimiters
- *         to change a delimiter, the beginning of the string will contain a separate line that looks like this:
- *         “//[delimiter]\n[numbers…]” for example “//;\n1;2” should return three where the default delimiter is ‘;’ .
+ *         to change a delimiters, the beginning of the string will contain a separate line that looks like this:
+ *         “//[delimiters]\n[numbers…]” for example “//;\n1;2” should return three where the default delimiters is ‘;’ .
  *         the first line is optional. all existing scenarios should still be supported
  *         <p>
  *         5.) Calling Add with a negative number will throw an exception “negatives not allowed” -
@@ -38,7 +41,7 @@ import static org.junit.Assert.fail;
  *         6.) Numbers bigger than 1000 should be ignored, so adding 2 + 1001  = 2
  *         <p>
  *         7.) Delimiters can be of any length with the following format:
- *         “//[delimiter]\n” for example: “//[***]\n1***2***3” should return 6
+ *         “//[delimiters]\n” for example: “//[***]\n1***2***3” should return 6
  *         8.) Allow multiple delimiters like this:
  *         “//[delim1][delim2]\n” for example “//[*][%]\n1*2%3” should return 6.
  *         make sure you can also handle multiple delimiters with length longer than one char
@@ -47,6 +50,53 @@ public class StringCalculatorTest {
 
     @Test
     public void emptyInput() {
-        fail();
+        assertThat(new StringCalculator("").add(), is(0));
+    }
+
+    @Test
+    public void oneNumber() {
+        assertThat(new StringCalculator("5").add(), is(5));
+    }
+
+    @Test
+    public void twoNumbersCommaDelimiter() {
+        assertThat(new StringCalculator("2,3").add(), is(5));
+    }
+
+    @Test
+    public void unknownAmountOfNumbersCommaDelimiter() {
+        assertThat(new StringCalculator("2,3,8").add(), is(13));
+        assertThat(new StringCalculator("2,3,8,2,3,8").add(), is(26));
+
+    }
+
+    @Test
+    public void newLineDelimiter() {
+        assertThat(new StringCalculator("2,3\n8").add(), is(13));
+    }
+
+    @Test
+    public void defineDelimiter() {
+        assertThat(new StringCalculator("//;\n2;3;9").add(), is(14));
+        assertThat(new StringCalculator("//;\n2,3;9").add(), is(14));
+        assertThat(new StringCalculator("//;\n2,3\n9;1").add(), is(15));
+    }
+
+    @Test
+    public void negativeNumbersThrowsException() {
+        try {
+            new StringCalculator("//;\n2;3;-9").add();
+            fail();
+        } catch (NumberFormatException ex) {
+            assertThat(ex.getMessage(), containsString("-9"));
+        }
+
+        try {
+            new StringCalculator("//;\n2;3;-9,-7").add();
+            fail();
+        } catch (NumberFormatException ex) {
+            assertThat(ex.getMessage(), containsString("-9,-7"));
+        }
+
     }
 }
