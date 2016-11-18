@@ -2,6 +2,9 @@ package de.kata;
 
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 /**
@@ -46,7 +49,36 @@ import static org.junit.Assert.fail;
 public class StringCalculatorTest {
 
     @Test
-    public void emptyInput() {
-        fail();
+    public void emptyInput() throws NegativesNotAllowedException {
+        assertThat(new StringCalculator("").calc(), is(0));
+    }
+    @Test
+    public void oneNumber() throws NegativesNotAllowedException {
+        assertThat(new StringCalculator("13").calc(), is(13));
+    }
+    @Test
+    public void twoNumbers() throws NegativesNotAllowedException {
+        assertThat(new StringCalculator("13,21").calc(), is(34));
+    }
+    @Test
+    public void unknownAmountOfNumbers() throws NegativesNotAllowedException {
+        assertThat(new StringCalculator("13,21,4,1,1").calc(), is(40));
+    }
+    @Test
+    public void handleNewLineSeparatorAdditional() throws NegativesNotAllowedException {
+        assertThat(new StringCalculator("13,21\n4,1\n1").calc(), is(40));
+    }
+    @Test
+    public void throwNegativesNotAllowedException(){
+        try {
+            new StringCalculator("-13,21\n-4,1\n1").calc();
+            fail();
+        } catch (NegativesNotAllowedException exception){
+            assertThat(exception.getMessage(), containsString("-13"));
+            assertThat(exception.getMessage(), containsString("-4"));        }
+    }
+    @Test
+    public void NumbersGreater1000ShouldBeIgnored() throws NegativesNotAllowedException {
+        assertThat(new StringCalculator("13,21,4,1,1,1000,1001").calc(), is(1040));
     }
 }
