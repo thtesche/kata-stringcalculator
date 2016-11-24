@@ -2,7 +2,8 @@ package de.kata;
 
 import org.junit.Test;
 
-import static org.junit.Assert.fail;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author thtesche
@@ -47,6 +48,32 @@ public class StringCalculatorTest {
 
     @Test
     public void emptyInput() {
-        fail();
+        assertThat(new StringCalculator("").add(), is(0));
+    }
+
+    @Test
+    public void oneNumber() {
+        assertThat(new StringCalculator("1").add(), is(1));
+        assertThat(new StringCalculator("33").add(), is(33));
+    }
+
+    @Test
+    public void twoNumbers() {
+        assertThat(new StringCalculator("1,13").add(), is(14));
+    }
+
+    @Test
+    public void arbitraryCountOfNumbers() {
+        assertThat(new StringCalculator("1,13,26,100").add(), is(140));
+    }
+
+    @Test
+    public void newLineAsDelimiter() {
+        assertThat(new StringCalculator("1,13\n26,100").add(), is(140));
+    }
+
+    @Test
+    public void delimiterDefinitionAtFirstLine() {
+        assertThat(new StringCalculator("//;\n1;13;26;100").add(), is(140));
     }
 }
