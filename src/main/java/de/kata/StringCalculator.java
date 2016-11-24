@@ -1,6 +1,7 @@
 package de.kata;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * @author thtesche
@@ -20,16 +21,31 @@ public class StringCalculator {
 
     }
 
-    int add() {
-        return Arrays.stream(numbers).mapToInt(Integer::valueOf).sum();
+    int add() throws NegativeNumberException {
+        checkForNegativeNumbers();
+        return Arrays.stream(numbers)
+                .mapToInt(Integer::valueOf)
+                .filter(value -> value <= 1000)
+                .sum();
+    }
+
+    private void checkForNegativeNumbers() throws NegativeNumberException {
+        String negativeNumbersMessage = Arrays.stream(numbers)
+                .filter(value -> Integer.valueOf(value) < 0)
+                .collect(Collectors.joining(","));
+
+        if (negativeNumbersMessage.length() > 0) {
+            throw new NegativeNumberException(negativeNumbersMessage);
+        }
     }
 
     private String extractNumberString(String input) {
-        String numberString = input;
+
         if (input.startsWith("//")) {
-            numberString = input.substring(4);
+            return input.substring(input.indexOf("\n") + 1);
+        } else {
+            return input;
         }
-        return numberString;
     }
 
     private String[] extractNumbers(final String numberString, final String regex) {

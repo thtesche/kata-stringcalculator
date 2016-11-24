@@ -2,8 +2,10 @@ package de.kata;
 
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 /**
  * @author thtesche
@@ -47,33 +49,56 @@ import static org.junit.Assert.assertThat;
 public class StringCalculatorTest {
 
     @Test
-    public void emptyInput() {
+    public void emptyInput() throws NegativeNumberException {
         assertThat(new StringCalculator("").add(), is(0));
     }
 
     @Test
-    public void oneNumber() {
+    public void oneNumber() throws NegativeNumberException {
         assertThat(new StringCalculator("1").add(), is(1));
         assertThat(new StringCalculator("33").add(), is(33));
     }
 
     @Test
-    public void twoNumbers() {
+    public void twoNumbers() throws NegativeNumberException {
         assertThat(new StringCalculator("1,13").add(), is(14));
     }
 
     @Test
-    public void arbitraryCountOfNumbers() {
+    public void arbitraryCountOfNumbers() throws NegativeNumberException {
         assertThat(new StringCalculator("1,13,26,100").add(), is(140));
     }
 
     @Test
-    public void newLineAsDelimiter() {
+    public void newLineAsDelimiter() throws NegativeNumberException {
         assertThat(new StringCalculator("1,13\n26,100").add(), is(140));
     }
 
     @Test
-    public void delimiterDefinitionAtFirstLine() {
+    public void delimiterDefinitionAtFirstLine() throws NegativeNumberException {
         assertThat(new StringCalculator("//;\n1;13;26;100").add(), is(140));
     }
+
+    @Test
+    public void noNegativeNumbers() {
+        try {
+            new StringCalculator("//;\n1;-13;26;-100").add();
+            fail();
+        } catch (NegativeNumberException exception) {
+            assertThat(exception.getMessage(), containsString("-100"));
+            assertThat(exception.getMessage(), containsString("-13"));
+        }
+    }
+
+    @Test
+    public void numbersGreater1000AreNotAllowed() throws NegativeNumberException {
+        assertThat(new StringCalculator("//;\n1;13;26;100;1001").add(), is(140));
+        assertThat(new StringCalculator("1001").add(), is(0));
+    }
+
+    @Test
+    public void moreThanOneDelimiterChar() throws NegativeNumberException {
+        assertThat(new StringCalculator("//[;;;]\n1;;;13;;;26;;;100;;;1001").add(), is(140));
+    }
+
 }
