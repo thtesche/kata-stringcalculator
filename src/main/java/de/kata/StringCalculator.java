@@ -1,7 +1,10 @@
 package de.kata;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.List;
+
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 
 /**
  * @author thtesche
@@ -32,7 +35,7 @@ public class StringCalculator {
     private void checkForNegativeNumbers() throws NegativeNumberException {
         String negativeNumbersMessage = Arrays.stream(numbers)
                 .filter(value -> Integer.valueOf(value) < 0)
-                .collect(Collectors.joining(","));
+                .collect(joining(","));
 
         if (negativeNumbersMessage.length() > 0) {
             throw new NegativeNumberException(negativeNumbersMessage);
@@ -58,9 +61,30 @@ public class StringCalculator {
 
     private String extractDelimiterRegex(final String input) {
         if (input.startsWith("//")) {
-            return input.substring(2, 3);
+            String rawRegex = input.substring(2, input.indexOf("\n"));
+            if (rawRegex.length() == 1) {
+                return rawRegex;
+            } else {
+                return findAllRegexes(rawRegex);
+            }
+
         } else {
             return DEFAULT_DELIMITER_REGEX;
         }
+    }
+
+    private String findAllRegexes(String definitionString) {
+        String[] definitions = definitionString.split("]");
+        List<String> cleanedDefinitions = Arrays.stream(definitions)
+                .map(s -> escapeDelimiters(s.replace("[", "")))
+                .collect(toList());
+
+        return cleanedDefinitions.stream().collect(joining("|"));
+    }
+
+    private String escapeDelimiters(final String unescapedDelimiter) {
+        return unescapedDelimiter.chars()
+                .mapToObj(i -> String.valueOf((char) i))
+                .collect(joining("", "\\", ""));
     }
 }

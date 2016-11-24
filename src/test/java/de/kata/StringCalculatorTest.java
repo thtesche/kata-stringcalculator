@@ -97,8 +97,18 @@ public class StringCalculatorTest {
     }
 
     @Test
-    public void moreThanOneDelimiterChar() throws NegativeNumberException {
+    public void OneDelimiterWithUnlimitedLength() throws NegativeNumberException {
         assertThat(new StringCalculator("//[;;;]\n1;;;13;;;26;;;100;;;1001").add(), is(140));
     }
 
+    @Test
+    public void moreThanOneDelimiterDefinitionWithUnlimitedLength() throws NegativeNumberException {
+        assertThat(new StringCalculator("//[;;;][*][..]\n1;;;13*26..100;;;1001").add(), is(140));
+    }
+
+    @Test(expected = NumberFormatException.class)
+    public void errorInCaseOfMissingDelimiterDefinition() throws NegativeNumberException {
+        new StringCalculator("//[;;;][*][..]\n1;;;13*26..100/1001").add();
+        fail();
+    }
 }
